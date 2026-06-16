@@ -16,29 +16,43 @@ This project follows the **3-Tier Architecture** pattern, separating concerns ac
 
 ```
 GymmanagmentSystem/
-├── GymManagment.DAL/        # Data Access Layer  — Models, DbContext, Repositories
-├── GymMangment.BLL/         # Business Logic Layer — Services, ViewModels, Interfaces
+├── GymManagment.DAL/        # Data Access Layer  — Models, DbContext, Repositories, UnitOfWork
+├── GymMangment.BLL/         # Business Logic Layer — Services, ViewModels, Mapping, Result Pattern
 └── GymmanagmentSystem/      # Presentation Layer  — Controllers, Views, wwwroot
 ```
 
 | Layer | Project | Responsibility |
 |-------|---------|----------------|
-| **DAL** | `GymManagment.DAL` | Database models, Entity Framework Core, data access |
-| **BLL** | `GymMangment.BLL` | Business logic, service interfaces, ViewModels |
+| **DAL** | `GymManagment.DAL` | Database models, EF Core, Generic Repository, Unit of Work |
+| **BLL** | `GymMangment.BLL` | Business logic, service interfaces, ViewModels, AutoMapper profiles |
 | **PL**  | `GymmanagmentSystem` | MVC Controllers, Razor Views, UI |
 
 ---
 
 ## ✨ Features
 
-- ✅ Member registration with personal & address information
-- ✅ Health record tracking (Height, Weight, Blood Type, Notes)
-- ✅ Gender selection with enum support
-- ✅ Multi-tab form UI for clean data entry
-- ✅ Member listing and management
-- 🔲 Member edit & delete _(in progress)_
-- 🔲 Membership plans & subscriptions _(planned)_
-- 🔲 Authentication & authorization _(planned)_
+### Members
+- ✅ List all members
+- ✅ Create member (with health record)
+- ✅ Member details
+- ✅ Health record details
+- ✅ Edit member profile
+- ✅ Delete member (with confirmation page)
+
+### Trainers
+- 🔲 CRUD _(planned)_
+
+### Plans & Memberships
+- 🔲 CRUD plans _(planned)_
+- 🔲 Assign member to plan _(planned)_
+
+### Sessions & Bookings
+- 🔲 CRUD sessions _(planned)_
+- 🔲 Book a session _(planned)_
+
+### Authentication
+- 🔲 Login / Register _(planned)_
+- 🔲 Roles (Admin, Trainer, Member) _(planned)_
 
 ---
 
@@ -46,12 +60,25 @@ GymmanagmentSystem/
 
 | Technology | Usage |
 |------------|-------|
-| ASP.NET Core MVC | Web framework |
-| Entity Framework Core | ORM / Database access |
+| ASP.NET Core MVC (.NET 9) | Web framework |
+| Entity Framework Core 9 | ORM / Database access |
 | SQL Server | Database |
+| AutoMapper | Object mapping (ViewModel ↔ Entity) |
 | Bootstrap 5 | UI styling |
 | Bootstrap Icons | Icon set |
 | C# | Primary language |
+
+---
+
+## 🧱 Design Patterns
+
+| Pattern | Where Used |
+|---------|-----------|
+| **3-Tier Architecture** | Full project structure |
+| **Generic Repository** | `IGenericRepository<T>` in DAL |
+| **Unit of Work** | `IUnitOfWork` wrapping all repositories |
+| **Result Pattern** | `Result<T>` returned from all service methods |
+| **AutoMapper** | `MappingProfile` in BLL |
 
 ---
 
@@ -59,7 +86,7 @@ GymmanagmentSystem/
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download)
 - [SQL Server](https://www.microsoft.com/en-us/sql-server)
 - Visual Studio 2022+ or VS Code
 
@@ -99,20 +126,41 @@ GymmanagmentSystem/
 ```
 GymManagment.DAL/
 ├── Models/
+│   ├── BaseEntity.cs
+│   ├── GymUser.cs (abstract)
 │   ├── Member.cs
 │   ├── HealthRecord.cs
-│   └── Enum/
-│       └── Gender.cs
-└── Data/
-    └── AppDbContext.cs
+│   ├── Trainer.cs
+│   ├── Plans.cs
+│   ├── Membership.cs
+│   ├── Session.cs
+│   ├── Booking.cs
+│   └── Enum/Gender.cs
+├── DbContext/
+│   └── GymDbcontext.cs
+└── Repositories/
+    ├── Interfaces/
+    │   ├── IGenericRepository.cs
+    │   └── IUnitOfWork.cs
+    └── Class/
+        ├── GenericRepository.cs
+        └── UnitOfWork.cs
 
 GymMangment.BLL/
+├── Common/
+│   └── Result.cs
+├── Mapping/
+│   └── MappingProfile.cs
 ├── Services/
-│   └── Interfaces/
-│       └── ImemberService.cs
+│   ├── Interfaces/ImemberService.cs
+│   └── Class/MemberService.cs
 └── ViewModels/
-    └── MemberViewModels/
-        └── CreateMemberViewModel.cs
+    ├── MemberViewModels/
+    │   ├── MemberViewModel.cs
+    │   ├── CreateMemberViewModel.cs
+    │   └── MemberToUpdateViewModel.cs
+    └── HealthRecordsViewModels/
+        └── HealthRecordViewModel.cs
 
 GymmanagmentSystem/
 ├── Controllers/
@@ -120,21 +168,13 @@ GymmanagmentSystem/
 ├── Views/
 │   └── Members/
 │       ├── Index.cshtml
-│       └── Create.cshtml
+│       ├── Create.cshtml
+│       ├── MemberDetails.cshtml
+│       ├── HealthRecordDetails.cshtml
+│       ├── EditMember.cshtml
+│       └── Delete.cshtml
 └── wwwroot/
 ```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Feel free to open an issue or submit a pull request.
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
 
 ---
 
