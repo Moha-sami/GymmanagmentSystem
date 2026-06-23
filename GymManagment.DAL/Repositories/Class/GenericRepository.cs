@@ -67,6 +67,13 @@ namespace GymManagment.DAL.Repositories.Class
             // Note: Make sure your BaseEntity has the Id property correctly defined
             return await query.FirstOrDefaultAsync(e => e.Id == id, ct);
         }
+        public async Task<IEnumerable<TEntity>> GetAllAsync( bool tracking = false, CancellationToken ct = default, params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = tracking ? _Set : _Set.AsNoTracking();
+            foreach (var include in includes)
+                query = query.Include(include);
+            return await query.ToListAsync(ct);
+        }
 
         public async Task<int> UpdateAsync(TEntity Entity, CancellationToken ct)
         {

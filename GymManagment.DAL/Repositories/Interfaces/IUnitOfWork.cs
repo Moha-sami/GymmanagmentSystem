@@ -12,6 +12,7 @@ namespace GymManagment.DAL.Repositories.Interfaces
         IGenericRepository<Category> Categories { get; }
         IGenericRepository<Membership> Memberships { get; }
         IGenericRepository<Trainer> Trainers { get; }
+        public ISessionRepository SessionRepository { get; }
 
         Task<int> CompleteAsync(CancellationToken ct = default);
     }

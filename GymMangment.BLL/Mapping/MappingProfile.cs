@@ -3,6 +3,7 @@ using GymManagment.DAL.Models;
 using GymMangment.BLL.ViewModels.HealthRecordsViewModels;
 using GymMangment.BLL.ViewModels.MemberViewModels;
 using GymMangment.BLL.ViewModels.PlansViewModels;
+using GymMangment.BLL.ViewModels.SessionsViewModels;
 using GymMangment.BLL.ViewModels.TrainerViewModels;
 
 namespace GymMangment.BLL.Mapping
@@ -108,6 +109,31 @@ namespace GymMangment.BLL.Mapping
                 .ForMember(dest => dest.Name, opt => opt.Ignore())
                 .ForMember(dest => dest.DateOFBirth, opt => opt.Ignore())
                 .ForMember(dest => dest.Gender, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.Now));
+
+            // Session -> SessionViewModel
+            CreateMap<Session, SessionViewModel>()
+                .ForMember(dest => dest.TrainerName, opt => opt.MapFrom(src => src.Trainer.Name))
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName.ToString()))
+                .ForMember(dest => dest.AvailableSlots, opt => opt.MapFrom(src => src.Capacity - src.SessionMembers.Count));
+
+            // CreateSessionViewModel -> Session
+            CreateMap<CreateSessionViewModel, Session>()
+                .ForMember(dest => dest.Trainer, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.SessionMembers, opt => opt.Ignore());
+
+            // Session -> SessionToUpdateViewModel
+            CreateMap<Session, SessionToUpdateViewModel>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName.ToString()));
+
+            // SessionToUpdateViewModel -> Session
+            CreateMap<SessionToUpdateViewModel, Session>()
+                .ForMember(dest => dest.Trainer, opt => opt.Ignore())
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.CategoryId, opt => opt.Ignore())
+                .ForMember(dest => dest.Capacity, opt => opt.Ignore())
+                .ForMember(dest => dest.SessionMembers, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.Now));
         }
     }

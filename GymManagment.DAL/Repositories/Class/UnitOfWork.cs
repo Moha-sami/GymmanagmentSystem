@@ -17,9 +17,10 @@ namespace GymManagment.DAL.Repositories.Class
         private IGenericRepository<Membership>? _memberships;
         private IGenericRepository<Trainer>? _trainers;
 
-        public UnitOfWork(GymDbcontext context)
+        public UnitOfWork(GymDbcontext context, ISessionRepository sessionRepository)
         {
             _context = context;
+            SessionRepository = sessionRepository;
         }
 
         public IGenericRepository<Member> Members =>
@@ -45,6 +46,8 @@ namespace GymManagment.DAL.Repositories.Class
 
         public IGenericRepository<Trainer> Trainers =>
             _trainers ??= new GenericRepository<Trainer>(_context);
+
+        public ISessionRepository SessionRepository {  get;  }
 
         public async Task<int> CompleteAsync(CancellationToken ct = default) =>
             await _context.SaveChangesAsync(ct);
