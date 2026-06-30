@@ -1,6 +1,7 @@
 ﻿using GymManagment.DAL.Models;
 using GymManagment.DAL.Models.Enum;
 using GymManagment.DAL.Repositories.Interfaces;
+using GymMangment.BLL.Services.Interfaces;
 using GymMangment.BLL.ViewModels.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,12 +15,14 @@ namespace GymmanagmentSystem.PL.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IUnitOfWork unitOfWork)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,IUnitOfWork unitOfWork,IFileService fileService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         // GET: Account/Login
@@ -67,6 +70,13 @@ namespace GymmanagmentSystem.PL.Controllers
                 return View(model);
             }
 
+            var photoPath = await _fileService.SaveImageAsync(model.Photo, "uploads");
+            if (photoPath == null)
+            {
+                ModelState.AddModelError("Photo", "Invalid photo. Please upload a JPG, PNG or WebP image under 2MB.");
+                return View(model);
+            }
+
             var member = new Member
             {
                 Name = model.FullName,
@@ -74,6 +84,7 @@ namespace GymmanagmentSystem.PL.Controllers
                 Phone = model.Phone,
                 DateOFBirth = model.DateOfBirth,
                 Gender = model.Gender,
+                Photo = photoPath,
                 Address = new Address
                 {
                     BuildingNumber = model.BuildingNumber,
@@ -93,6 +104,7 @@ namespace GymmanagmentSystem.PL.Controllers
             };
 
             await _unitOfWork.Members.AddAsync(member, default);
+
             // Auto-assign Basic Plan membership
             var basicPlan = (await _unitOfWork.Plans.GetAllAsync())
                 .FirstOrDefault(p => p.Name == "Basic Plan" && p.IsActive);
@@ -107,7 +119,6 @@ namespace GymmanagmentSystem.PL.Controllers
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
-
                 await _unitOfWork.Memberships.AddAsync(membership, default);
             }
 

@@ -10,6 +10,14 @@
     <link rel="stylesheet" href="~/GymmanagmentSystem.styles.css" asp-append-version="true" />
 </head>
 <body>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+        string IsActive(params string[] controllers)
+        {
+            return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+        }
+    }
 
     <header>
         <nav class="navbar navbar-expand-lg bg-white my-3">
@@ -24,75 +32,70 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav m-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
-                        <ul class="navbar-nav m-auto mb-2 mb-lg-0 mt-3 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Home")" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+
+                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                        {
                             <li class="nav-item">
-                                <a class="nav-link active px-3 py-2 mx-2 fw-bolder fs-5" aria-current="page" asp-controller="Home" asp-action="Index">Home</a>
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Members")" asp-controller="Members" asp-action="Index">Members</a>
                             </li>
-
-                            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Members" asp-action="Index">Members</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Trainers" asp-action="Index">Trainers</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Sessions" asp-action="Index">Sessions</a>
-                                </li>
-                            }
-
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Plans" asp-action="Index">Plans</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Memberships" asp-action="Index">Memberships</a>
-                                </li>
-                            }
-
                             <li class="nav-item">
-                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="SessionsSchedule" asp-action="Index">Sessions Schedule</a>
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Trainers")" asp-controller="Trainers" asp-action="Index">Trainers</a>
                             </li>
-
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="DeleteRequests" asp-action="Index">Delete Requests</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Admin" asp-action="Users">Users</a>
-                                </li>
-                            }
-                            @if (User.IsInRole("Member"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Members" asp-action="MyProfile">My Profile</a>
-                                </li>
-                            }
-                            @if (User.IsInRole("Member"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Memberships" asp-action="MyMembership">My Membership</a>
-                                </li>
-                            }
-                            @if (User.IsInRole("Member"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5" asp-controller="Bookings" asp-action="MyBookings">My Bookings</a>
-                                </li>
-                            }
-
-
                             <li class="nav-item">
-                                <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-link nav-link px-3 py-2 mx-2 fw-bolder fs-5 text-black-alternative" style="text-decoration: none;">
-                                        Logout
-                                    </button>
-                                </form>
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Sessions")" asp-controller="Sessions" asp-action="Index">Sessions</a>
                             </li>
-                        </ul>
+                        }
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Plans")" asp-controller="Plans" asp-action="Index">Plans</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Memberships")" asp-controller="Memberships" asp-action="Index">Memberships</a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("SessionsSchedule")" asp-controller="SessionsSchedule" asp-action="Index">Sessions Schedule</a>
+                        </li>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("DeleteRequests")" asp-controller="DeleteRequests" asp-action="Index">Delete Requests</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @IsActive("Admin")" asp-controller="Admin" asp-action="Users">Users</a>
+                            </li>
+                        }
+
+                        @if (User.IsInRole("Member"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @(currentController == "Members" && ViewContext.RouteData.Values["action"]?.ToString() == "MyProfile" ? "active" : "")"
+                                   asp-controller="Members" asp-action="MyProfile">My Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @(currentController == "Memberships" && ViewContext.RouteData.Values["action"]?.ToString() == "MyMembership" ? "active" : "")"
+                                   asp-controller="Memberships" asp-action="MyMembership">My Membership</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link px-3 py-2 mx-2 fw-bolder fs-5 @(currentController == "Bookings" && ViewContext.RouteData.Values["action"]?.ToString() == "MyBookings" ? "active" : "")"
+                                   asp-controller="Bookings" asp-action="MyBookings">My Bookings</a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <form asp-action="Logout" asp-controller="Account" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-link nav-link px-3 py-2 mx-2 fw-bolder fs-5 text-black-alternative" style="text-decoration: none;">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>

@@ -15,18 +15,18 @@ namespace GymmanagmentSystem
             var context = scope.ServiceProvider.GetRequiredService<GymDbcontext>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            await SeedMembersAsync(context, logger);
-            await SeedWeightProgressRecordsAsync(context, logger);
-            await SeedTrainersAsync(context, logger);
-            await SeedUpcomingSessionsAsync(context, logger);
 
             try
             {
                 await SeedPlansAsync(context, logger);
                 await SeedCategoriesAsync(context, logger);
+                await SeedTrainersAsync(context, logger);
+                await SeedMembersAsync(context, logger);
+                await SeedWeightProgressRecordsAsync(context, logger);
                 await SeedRolesAsync(roleManager, logger);
                 await SeedAdminUserAsync(userManager, logger);
                 await SeedManagerUsersAsync(userManager, logger);
+                await SeedUpcomingSessionsAsync(context, logger); // must be LAST — needs Trainers + Categories
             }
             catch (Exception ex)
             {

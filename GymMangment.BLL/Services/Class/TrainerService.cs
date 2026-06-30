@@ -4,6 +4,7 @@ using GymManagment.DAL.Repositories.Interfaces;
 using GymMangment.BLL.Common;
 using GymMangment.BLL.Services.Interfaces;
 using GymMangment.BLL.ViewModels.TrainerViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymMangment.BLL.Services.Class
 {
@@ -87,8 +88,15 @@ namespace GymMangment.BLL.Services.Class
             if (trainer == null)
                 return Result.Failure("No trainer found with this id");
 
-            await _unitOfWork.Trainers.DeleteAsync(trainer, ct);
-            return Result.Success();
+            try
+            {
+                await _unitOfWork.Trainers.DeleteAsync(trainer, ct);
+                return Result.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return Result.Failure("Cannot delete this trainer — they have sessions, login account, or other records linked to them.");
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using GymManagment.DAL.Models.Enum;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace GymMangment.BLL.ViewModels.AccountViewModels
@@ -12,6 +13,8 @@ namespace GymMangment.BLL.ViewModels.AccountViewModels
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress]
         public string Email { get; set; } = default!;
+        [Required(ErrorMessage = "Profile photo is required")]
+        public IFormFile Photo { get; set; } = default!;
 
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]

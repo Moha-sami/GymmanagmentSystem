@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 namespace GymmanagmentSystem.PL.Controllers
 {
     
@@ -168,21 +169,19 @@ namespace GymmanagmentSystem.PL.Controllers
         //DeleteConfirmed(int id) - Processes deletion localhost:port/Members/DeleteConfirmed/{Id}(Post)
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id,CancellationToken ct)
+        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken ct)
         {
-            var member= await memberservice.DeleteMemberAsync(id, ct);
-            if (!member.Succeeded)
-            {
-                TempData["ErrorMessage"] = member.Error;
-                return RedirectToAction(nameof(Index));
-            }
-            TempData["WarningMessage"] = "Member deleted successfully!";
+            var result = await memberservice.DeleteMemberAsync(id, ct);
+
+            TempData[result.Succeeded ? "WarningMessage" : "ErrorMessage"]
+                = result.Succeeded ? "Member deleted successfully!" : result.Error;
+
             return RedirectToAction(nameof(Index));
         }
 
         #endregion
 
-        
+
 
         // GET: Members/MyProfile
         [Authorize(Roles = "Member")]

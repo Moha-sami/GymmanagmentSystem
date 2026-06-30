@@ -1,7 +1,10 @@
-﻿using GymMangment.BLL.Services.Interfaces;
+﻿using GymManagment.DAL.Repositories.Interfaces;
+using GymMangment.BLL.Common;
+using GymMangment.BLL.Services.Interfaces;
 using GymMangment.BLL.ViewModels.SessionsViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymmanagmentSystem.PL.Controllers
 {
@@ -9,10 +12,12 @@ namespace GymmanagmentSystem.PL.Controllers
     public class SessionsController : Controller
     {
         private readonly ISessionService _sessionService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SessionsController(ISessionService sessionService)
+        public SessionsController(ISessionService sessionService,IUnitOfWork unitOfWork)
         {
             _sessionService = sessionService;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Sessions/Index
@@ -120,14 +125,21 @@ namespace GymmanagmentSystem.PL.Controllers
         // POST: Sessions/DeleteConfirmed/5
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id, CancellationToken ct)
+        public async Task<Result> DeleteSessionAsync(int id, CancellationToken ct = default)
         {
-            var result = await _sessionService.DeleteSessionAsync(id, ct);
+            var session = await _unitOfWork.Sessions.GetByIdAsync(id, ct);
+            if (session == null)
+                return Result.Failure("Session not found");
 
-            TempData[result.Succeeded ? "WarningMessage" : "ErrorMessage"]
-                = result.Succeeded ? "Session deleted successfully!" : result.Error;
-
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _unitOfWork.Sessions.DeleteAsync(session, ct);
+                return Result.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return Result.Failure("Cannot delete this session — members have already booked it. Cancel all bookings for this session first.");
+            }
         }
     }
 }

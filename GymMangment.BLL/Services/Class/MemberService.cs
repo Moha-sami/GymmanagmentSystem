@@ -5,6 +5,7 @@ using GymMangment.BLL.Common;
 using GymMangment.BLL.Services.Interfaces;
 using GymMangment.BLL.ViewModels.HealthRecordsViewModels;
 using GymMangment.BLL.ViewModels.MemberViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace GymMangment.BLL.Services.Class
@@ -143,12 +144,20 @@ namespace GymMangment.BLL.Services.Class
         public async Task<Result> DeleteMemberAsync(int memberId, CancellationToken ct = default)
         {
             var result = await _unitOfWork.Members.GetByIdAsync(memberId, ct);
-            if(result == null)
+            if (result == null)
             {
                 return Result.Failure("No Member Available");
             }
-            await _unitOfWork.Members.DeleteAsync(result, ct);
-            return Result.Success();
+
+            try
+            {
+                await _unitOfWork.Members.DeleteAsync(result, ct);
+                return Result.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return Result.Failure("Cannot delete this member — they have an active login account, bookings, or membership history linked to them.");
+            }
         }
 
         private async Task AddWeightProgressRecordAsync(int memberId, decimal weight, string? note, CancellationToken ct)
